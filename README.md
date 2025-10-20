@@ -68,7 +68,32 @@ The bridge operates as a **finite state machine (FSM)** with the following state
 | `WRITE_PIPE`  | Enables current write while immediately starting next write setup |
 
 **Pipeline Support:** Consecutive writes can be pipelined using `WRITE_PIPE` state, improving bus throughput without waiting for the previous write to complete.
+---
+```mermaid
+stateDiagram-v2
+    [*] --> IDLE
 
+    %% IDLE Transitions
+    IDLE --> READ_SETUP : valid & hwrite==0
+    IDLE --> WRITE_WAIT : valid & hwrite==1
+    IDLE --> IDLE : !valid
+
+    %% Read Flow
+    READ_SETUP --> READ_ENABLE : next_cycle
+    READ_ENABLE --> READ_SETUP : valid & !hwrite
+    READ_ENABLE --> WRITE_WAIT : valid & hwrite
+    READ_ENABLE --> IDLE : !valid
+
+    %% Write Flow
+    WRITE_WAIT --> WRITE_SETUP : next_cycle
+    WRITE_SETUP --> WRITE_PIPE : pipe_active & valid & hwrite
+    WRITE_SETUP --> WRITE_ENABLE : else
+    WRITE_ENABLE --> WRITE_WAIT : valid & hwrite
+    WRITE_ENABLE --> READ_SETUP : valid & !hwrite
+    WRITE_ENABLE --> IDLE : !valid
+    WRITE_PIPE --> WRITE_SETUP : next_cycle
+
+```
 ---
 
 ## Testbench (`bridge_tb.v`)

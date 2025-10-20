@@ -108,7 +108,7 @@ The testbench verifies the functionality of `bridge_rtl` including:
   ---
   **Simulations**
 
-  ![IMAGE]()
+  ![IMAGE](https://github.com/XcentricCoder/AHB2APB_bridge/blob/main/Waveform)
 
 **Features:**
 
